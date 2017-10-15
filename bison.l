@@ -7,7 +7,7 @@ IS     (u|U|l|L)*
 
 %{
 #include <stdio.h>
-#include "y.tab.h"
+#include "bison.tab.h"
 
 void count();
 %}
