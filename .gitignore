@@ -1,3 +1,10 @@
+# archivos generados
+
+bison
+bison.tab.c
+bison.tab.h
+lex.yy.c
+
 # vim files
 
 *.swo
