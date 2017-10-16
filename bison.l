@@ -13,6 +13,8 @@ void count();
 %}
 
 %%
+
+
 "/*"                    { comment();                           }
 "auto"                  { count();    return(AUTO);            }
 "break"                 { count();    return(BREAK);           }
