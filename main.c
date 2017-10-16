@@ -8,14 +8,19 @@ extern int yylex();
 extern int yylineno;
 extern char* yytext;
 extern FILE* yyin;
+extern int yyparse();
 
 
 
 int main(int argc, char * * argv)
 {
   verificarArgumentos(argc,argv);
+  yyparse();
   int token = yylex();
-  printf("Hello World");
+  while (token)
+    {
+    token = yylex();
+    }
   return 1;
 }
 

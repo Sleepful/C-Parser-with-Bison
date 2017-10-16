@@ -11,6 +11,7 @@
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 
 %start translation_unit
+%define parse.error verbose
 %%
 
 primary_expression
@@ -372,7 +373,7 @@ statement_list
   ;
 
 expression_statement
-  : ';'
+  : error ';'
   | expression ';'
   ;
 
@@ -420,8 +421,7 @@ function_definition
 extern char yytext[];
 extern int column;
 
-yyerror(s)
-char *s;
+yyerror(s) char *s;
 {
   fflush(stdout);
   printf("\n%*s\n%*s\n", column, "^", column, s);

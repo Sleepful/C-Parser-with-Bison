@@ -1,3 +1,7 @@
+.SUFFIXES:
+
+all: bison
+
 bison: main parser
 	cc -o $@ main.o bison.tab.c lex.yy.c -lfl
 
