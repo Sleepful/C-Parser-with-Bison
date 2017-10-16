@@ -1,16 +1,12 @@
-.SUFFIXES:
+bison: main.o lex.yy.c grammar.tab.c
+	cc -o $@ main.o grammar.tab.c lex.yy.c -lfl
 
-all: bison
-
-bison: main parser
-	cc -o $@ main.o bison.tab.c lex.yy.c -lfl
-
-main: main.c
+main.o: main.c
 	cc -c main.c
 
-parser: bison.l bison.y
-	bison -d bison.y
-	flex bison.l
+lex.yy.c: lexicon.l grammar.y
+	bison -d grammar.y
+	flex lexicon.l
 
 clean:
-	rm bison.tab.c lex.yy.c bison bison.tab.h
+	rm grammar.tab.h grammar.tab.c lex.yy.c bison grammar.tab.h

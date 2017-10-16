@@ -7,9 +7,11 @@ IS     (u|U|l|L)*
 
 %{
 #include <stdio.h>
-#include "bison.tab.h"
+#include "grammar.tab.h"
 
 void count();
+void comment();
+int check_type();
 %}
 
 %%
@@ -107,13 +109,13 @@ L?\"(\\.|[^\\"])*\"     { count();    return(STRING_LITERAL);  }
 .                       {      /*ignore bad  characters */     }
 %%
 
-yywrap()
+int yywrap()
 {
   return(1);
 }
 
 
-comment()
+void comment()
 {
   char c, c1;
 
