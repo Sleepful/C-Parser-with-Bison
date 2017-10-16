@@ -1,7 +1,12 @@
-bison: bison.l bison.y
+bison: main parser
+	cc -o $@ main.o bison.tab.c lex.yy.c -lfl
+
+main: main.c
+	cc -c main.c
+
+parser: bison.l bison.y
 	bison -d bison.y
 	flex bison.l
-	cc -o $@ main.c bison.tab.c lex.yy.c -lfl
 
 clean:
 	rm bison.tab.c lex.yy.c bison bison.tab.h
