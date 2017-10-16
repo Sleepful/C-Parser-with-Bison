@@ -9,4 +9,4 @@ lex.yy.c: lexicon.l grammar.y
 	flex lexicon.l
 
 clean:
-	rm grammar.tab.h grammar.tab.c lex.yy.c bison grammar.tab.h
+	rm grammar.tab.c lex.yy.c bison grammar.tab.h

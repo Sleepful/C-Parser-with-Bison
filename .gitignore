@@ -4,6 +4,8 @@ hello
 bison
 bison.tab.c
 bison.tab.h
+grammar.tab.c
+grammar.tab.h
 lex.yy.c
 
 # vim files
