@@ -8,18 +8,16 @@ extern int yylineno;
 extern char* yytext;
 extern FILE* yyin;
 extern int yyparse();
+extern void clear_line_string();
 
 
 
 int main(int argc, char * * argv)
 {
   verificarArgumentos(argc,argv);
+  /* clear_line mallocs the current string buffer */
+  clear_line_string();
   yyparse();
-  int token = yylex();
-  while (token)
-    {
-    token = yylex();
-    }
   return 1;
 }
 

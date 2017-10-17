@@ -6,18 +6,25 @@ FS     (f|F|l|L)
 IS     (u|U|l|L)*
 
 %{
+#include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include "grammar.tab.h"
 
 void count();
 void comment();
 int check_type();
+void lexical_error();
+void count_error();
+char* concat();
 %}
+%option yylineno
 
 %%
 
 
-"/*"                    { comment();                           }
+"/*"((("*"[^/])?)|[^*])*"*/" { count(); /* ignore multi line comments */}
+"//".*                  { count();  /* ignore comments */      }
 "auto"                  { count();    return(AUTO);            }
 "break"                 { count();    return(BREAK);           }
 "case"                  { count();    return(CASE);            }
@@ -105,8 +112,8 @@ L?\"(\\.|[^\\"])*\"     { count();    return(STRING_LITERAL);  }
 "^"                     { count();    return('^');             }
 "|"                     { count();    return('|');             }
 "?"                     { count();    return('?');             }
-[\t\v\n\f]              { count();                             }
-.                       {      /*ignore bad  characters */     }
+[\t\v\n\f ]             { count();                             }
+.                       { count_error();                       }
 %%
 
 int yywrap()
@@ -115,38 +122,127 @@ int yywrap()
 }
 
 
-void comment()
-{
-  char c, c1;
-
-loop:
-  while ((c = input()) != '*' && c != 0)
-    ;//putchar(c);
-
-  if ((c1 = input()) != '/' && c != 0)
-  {
-    ;//unput(c1);
-    goto loop;
-  }
-
-  if (c != 0)
-    ;//putchar(c1);
-}
+extern void yyerror(const char *s);
 
 
 int column = 0;
+int l_error_flag=0;
+
+void count_error()
+  {
+  if(l_error_flag)
+    yyerror("Lexical error");
+  count();
+  l_error_flag =1;
+  return;
+  }
+
+/* manejo de line_string:
+ *  el string de la linea actual que se esta leyendo
+ *  hasta el current token
+ * */
+char* line_string;
+
+void clear_line_string()
+  {
+  //printf("clear line string\n");
+  free(line_string);
+  line_string = malloc(1);
+  strcpy(line_string,"");
+  return;
+  }
+
+void append_line_string()
+  {
+  //printf("append line string\n");
+  char* temp;
+  temp = concat(line_string,yytext);
+  free(line_string);
+  line_string = temp;
+  return;
+  }
+
+void fill_line()
+  {
+  char c;
+  int puts =0;
+  int strlen_int = strlen (line_string);
+  char *ptr = malloc(2*sizeof(char));
+
+
+  puts = yyleng;
+  for(puts;puts>0;puts--)
+    {
+    c = line_string[strlen_int+puts];
+    unput(c);
+    }
+
+  puts = 0;
+  while ((c = input()) != '\n')
+    {
+    ptr[0] = c;
+    ptr[1] = '\0';
+    line_string = concat(line_string,ptr);
+    puts++;
+    }
+  free(ptr);
+  for(puts;puts>0;puts--)
+    {
+    c = line_string[strlen_int+puts];
+    unput(c);
+    }
+  return;
+  }
+
+char* concat(char *s1,char *s2)
+{
+    char *result = malloc(strlen(s1)+strlen(s2)+1);
+    /* +1 for the null terminator */
+    /* check for malloc error */
+    if (!result)
+      {
+      printf("failed to realloc in function concat(), lexicon.l");
+      exit(9); //failed to realloc
+      }
+    //printf("string %s\n", line_string);
+    strcpy(result, s1);
+    strcat(result, s2);
+    //printf("string %s\n", result);
+    //printf("string %s\n", result);
+    return result;
+}
+
+/* prints a lexical error to stdout */
+/* not gonna use this probably */
+void llerror()
+  {
+  return;
+  }
 
 void count()
 {
   int i;
 
   for (i = 0; yytext[i] != '\0'; i++)
+    {
     if (yytext[i] == '\n')
+      {
+      clear_line_string();
       column = 0;
+      return;
+      }
     else if (yytext[i] == '\t')
+      {
       column += 8 - (column % 8);
+      }
     else
+      {
       column++;
+      }
+    }
+    append_line_string();
+    l_error_flag = 0;
+    return;
 
   //ECHO;
 }
@@ -169,3 +265,23 @@ int check_type()
 
   return(IDENTIFIER);
 }
+
+/*
+void comment()
+{
+  char c, c1;
+
+loop:
+  while ((c = input()) != '*' && c != 0)
+    ;//putchar(c);
+
+  if ((c1 = input()) != '/' && c != 0)
+  {
+    ;//unput(c1);
+    goto loop;
+  }
+
+  if (c != 0)
+    ;//putchar(c1);
+}
+*/

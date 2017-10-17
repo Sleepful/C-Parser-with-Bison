@@ -421,12 +421,75 @@ function_definition
 
 %%
 #include <stdio.h>
+#include <string.h>
+#define RESET       "\033[0m"
+#define KNRM        "\x1B[0m"
+#define KRED        "\x1B[31m"
+#define KGRN        "\x1B[32m"
+#define KYEL        "\x1B[33m"
+#define KBLU        "\x1B[34m"
+#define KMAG        "\x1B[35m"
+#define KCYN        "\x1B[36m"
+#define KWHT        "\x1B[37m"
+#define BOLDBLACK   "\033[1m\033[30m"
+#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
+#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
+#define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
+#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
+#define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
+#define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
+#define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 
-extern char yytext[];
 extern int column;
+extern int yylineno;
+extern int yyleng;
+extern char* yytext;
+extern char* line_string;
+extern void fill_line();
+extern void clear_line_string();
+extern char* concat(char *s1,char *s2);
 
 void yyerror(const char *s)
 {
+  /* error_tpye/error_message? */
   fflush(stdout);
-  printf("\n%*s\n%*s\n", column, "^", column, s);
+
+  char* original_line_string;
+  original_line_string = concat("", line_string);
+  //printf("original string:\n%s\n",original_line_string);
+  fill_line();
+  //printf("\n%*s\n%*s\n", column, "^", column, s);
+
+  char* underline;
+  int i;
+  underline =malloc(1);
+  strcpy(underline,"");
+  char *squiggly = malloc(2*sizeof(char));
+  squiggly[0] = '~';
+  squiggly[1] = '\0';
+  for(i=1;i<yyleng;++i)
+    {
+    char* temp;
+    temp = concat(underline,squiggly);
+    free(underline);
+    underline=temp;
+    }
+  printf(
+                    "\n%s"            RESET
+        BOLDRED     "\n%*s"           RESET
+        BOLDRED     "%s"              RESET
+        BOLDBLACK   "\nl:%d c:%d"     RESET
+                    "::= %s at "      RESET
+        BOLDRED     "%s\n"            RESET
+        , line_string
+        , (column-yyleng+1), "^"
+        , underline
+        , yylineno , column
+        , s
+        , yytext
+        );
+  free(underline);
+  free(line_string);
+  line_string = concat("", original_line_string);
+  free(original_line_string);
 }
