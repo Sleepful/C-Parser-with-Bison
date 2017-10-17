@@ -170,13 +170,9 @@ void fill_line()
   char *ptr = malloc(2*sizeof(char));
 
 
-  puts = yyleng;
-  for(puts;puts>0;puts--)
-    {
-    c = line_string[strlen_int+puts];
-    unput(c);
-    }
+  /* color */
 
+  /* no more color */
   puts = 0;
   while ((c = input()) != '\n')
     {
