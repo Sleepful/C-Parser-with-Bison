@@ -23,6 +23,7 @@ primary_expression
   | CONSTANT
   | STRING_LITERAL
   | '(' expression ')'
+  | '(' error ')'
   ;
 
 postfix_expression
@@ -39,6 +40,7 @@ postfix_expression
 argument_expression_list
   : assignment_expression
   | argument_expression_list ',' assignment_expression
+  | error ',' assignment_expression
   ;
 
 unary_expression
@@ -69,12 +71,17 @@ multiplicative_expression
   | multiplicative_expression '*' cast_expression
   | multiplicative_expression '/' cast_expression
   | multiplicative_expression '%' cast_expression
+  | error '*' cast_expression
+  | error '/' cast_expression
+  | error '%' cast_expression
   ;
 
 additive_expression
   : multiplicative_expression
   | additive_expression '+' multiplicative_expression
   | additive_expression '-' multiplicative_expression
+  | error '+' multiplicative_expression
+  | error '-' multiplicative_expression
   ;
 
 shift_expression
@@ -89,12 +96,18 @@ relational_expression
   | relational_expression '>' shift_expression
   | relational_expression LE_OP shift_expression
   | relational_expression GE_OP shift_expression
+  | error '<' shift_expression
+  | error '>' shift_expression
+  | error LE_OP shift_expression
+  | error GE_OP shift_expression
   ;
 
 equality_expression
   : relational_expression
   | equality_expression EQ_OP relational_expression
   | equality_expression NE_OP relational_expression
+  | error EQ_OP relational_expression
+  | error NE_OP relational_expression
   ;
 
 and_expression
@@ -125,6 +138,9 @@ logical_or_expression
 conditional_expression
   : logical_or_expression
   | logical_or_expression '?' expression ':' conditional_expression
+  | error '?' error ':' conditional_expression
+  | logical_or_expression '?' error ':' conditional_expression
+  | error '?' expression ':' conditional_expression
   ;
 
 assignment_expression
@@ -158,6 +174,7 @@ constant_expression
 declaration
   : declaration_specifiers ';'
   | declaration_specifiers init_declarator_list ';'
+  | declaration_specifiers error ';'
   ;
 
 declaration_specifiers
@@ -172,11 +189,13 @@ declaration_specifiers
 init_declarator_list
   : init_declarator
   | init_declarator_list ',' init_declarator
+  | error ',' init_declarator
   ;
 
 init_declarator
   : declarator
   | declarator '=' initializer
+  | error '=' initializer
   ;
 
 storage_class_specifier
@@ -206,6 +225,8 @@ struct_or_union_specifier
   : struct_or_union IDENTIFIER '{' struct_declaration_list '}'
   | struct_or_union '{' struct_declaration_list '}'
   | struct_or_union IDENTIFIER
+  | struct_or_union IDENTIFIER '{' error '}'
+  | struct_or_union '{' error '}'
   ;
 
 struct_or_union
@@ -220,6 +241,7 @@ struct_declaration_list
 
 struct_declaration
   : specifier_qualifier_list struct_declarator_list ';'
+  | error ';'
   ;
 
 specifier_qualifier_list
@@ -232,28 +254,34 @@ specifier_qualifier_list
 struct_declarator_list
   : struct_declarator
   | struct_declarator_list ',' struct_declarator
+  | error ',' struct_declarator
   ;
 
 struct_declarator
   : declarator
   | ':' constant_expression
   | declarator ':' constant_expression
+  | error ':' constant_expression
   ;
 
 enum_specifier
   : ENUM '{' enumerator_list '}'
   | ENUM IDENTIFIER '{' enumerator_list '}'
+  | ENUM '{' error '}'
+  | ENUM IDENTIFIER '{' error '}'
   | ENUM IDENTIFIER
   ;
 
 enumerator_list
   : enumerator
   | enumerator_list ',' enumerator
+  | error ',' enumerator
   ;
 
 enumerator
   : IDENTIFIER
   | IDENTIFIER '=' constant_expression
+  | error '=' constant_expression
   ;
 
 type_qualifier
@@ -274,6 +302,7 @@ direct_declarator
   | direct_declarator '(' parameter_type_list ')'
   | direct_declarator '(' identifier_list ')'
   | direct_declarator '(' ')'
+  | '(' error ')'
   ;
 
 pointer
@@ -281,6 +310,7 @@ pointer
   | '*' type_qualifier_list
   | '*' pointer
   | '*' type_qualifier_list pointer
+  | '*' error pointer
   ;
 
 type_qualifier_list
@@ -292,11 +322,13 @@ type_qualifier_list
 parameter_type_list
   : parameter_list
   | parameter_list ',' ELLIPSIS
+  | error ',' ELLIPSIS
   ;
 
 parameter_list
   : parameter_declaration
   | parameter_list ',' parameter_declaration
+  | error ',' parameter_declaration
   ;
 
 parameter_declaration
@@ -325,23 +357,28 @@ direct_abstract_declarator
   : '(' abstract_declarator ')'
   | '[' ']'
   | '[' constant_expression ']'
+  | '[' error ']'
   | direct_abstract_declarator '[' ']'
   | direct_abstract_declarator '[' constant_expression ']'
   | '(' ')'
   | '(' parameter_type_list ')'
   | direct_abstract_declarator '(' ')'
   | direct_abstract_declarator '(' parameter_type_list ')'
+  | direct_abstract_declarator '(' error ')'
+  | direct_abstract_declarator '[' error ']'
   ;
 
 initializer
   : assignment_expression
   | '{' initializer_list '}'
   | '{' initializer_list ',' '}'
+  | '{' error '}'
   ;
 
 initializer_list
   : initializer
   | initializer_list ',' initializer
+  | error ',' initializer
   ;
 
 statement
@@ -364,6 +401,7 @@ compound_statement
   | '{' statement_list '}'
   | '{' declaration_list '}'
   | '{' declaration_list statement_list '}'
+  | '{' error '}'
   ;
 
 declaration_list
@@ -385,6 +423,9 @@ selection_statement
   : IF '(' expression ')' statement
   | IF '(' expression ')' statement ELSE statement
   | SWITCH '(' expression ')' statement
+  | IF '(' error ')' statement
+  | IF '(' error ')' statement ELSE statement
+  | SWITCH '(' error ')' statement
   ;
 
 iteration_statement
@@ -392,6 +433,8 @@ iteration_statement
   | DO statement WHILE '(' expression ')' ';'
   | FOR '(' expression_statement expression_statement ')' statement
   | FOR '(' expression_statement expression_statement expression ')' statement
+  | DO error WHILE '(' expression ')' ';'
+  | FOR '(' error')' statement
   ;
 
 jump_statement
@@ -400,6 +443,7 @@ jump_statement
   | BREAK ';'
   | RETURN ';'
   | RETURN expression ';'
+  | RETURN error ';'
   ;
 
 translation_unit
@@ -417,6 +461,8 @@ function_definition
   | declaration_specifiers declarator compound_statement
   | declarator declaration_list compound_statement
   | declarator compound_statement
+  | error compound_statement
+  | declarator error
   ;
 
 %%
@@ -460,7 +506,6 @@ void yyerror(const char *s)
 {
   /* error_tpye/error_message? */
   fflush(stdout);
-
   char* original_line_string;
   original_line_string = concat("", line_string);
   //printf("original string:\n%s\n",original_line_string);
