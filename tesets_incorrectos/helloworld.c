@@ -1,6 +1,6 @@
 /* Hello World program */
 
-#include "helloworld2.c"
+#include "helloworld2.h"
 
 int main()
 {

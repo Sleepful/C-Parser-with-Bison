@@ -174,6 +174,7 @@ constant_expression
 declaration
   : declaration_specifiers ';'
   | declaration_specifiers init_declarator_list ';'
+  | declaration_specifiers init_declarator_list '=' assignment_expression ';'
   | declaration_specifiers error ';'
   ;
 
@@ -301,6 +302,8 @@ direct_declarator
   | direct_declarator '[' ']'
   | direct_declarator '(' parameter_type_list ')'
   | direct_declarator '(' identifier_list ')'
+  | direct_declarator '(' error ')'
+  | error '(' error ')'
   | direct_declarator '(' ')'
   | '(' error ')'
   ;
@@ -459,10 +462,12 @@ external_declaration
 function_definition
   : declaration_specifiers declarator declaration_list compound_statement
   | declaration_specifiers declarator compound_statement
+  | declaration_specifiers error compound_statement
   | declarator declaration_list compound_statement
+  | error declaration_list compound_statement
   | declarator compound_statement
+  | declarator error compound_statement
   | error compound_statement
-  | declarator error
   ;
 
 %%
@@ -536,7 +541,7 @@ void yyerror(const char *s)
         , line_string
         , (column-yyleng+1), "^"
         , underline
-        , yylineno , column
+        , (yylineno-1), column
         , s
         , yytext
         );

@@ -25,6 +25,7 @@ char* concat();
 
 "/*"((("*"[^/])?)|[^*])*"*/" { count(); /* ignore multi line comments */}
 "//".*                  { count();  /* ignore comments */      }
+^"#".*                  { count();  /* ignore comments */      }
 "auto"                  { count();    return(AUTO);            }
 "break"                 { count();    return(BREAK);           }
 "case"                  { count();    return(CASE);            }
@@ -259,6 +260,7 @@ int check_type()
 *  it actually will only return IDENTIFIER
 */
 
+  //ECHO;
   return(IDENTIFIER);
 }
 
