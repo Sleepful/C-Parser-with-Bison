@@ -9,6 +9,7 @@ IS     (u|U|l|L)*
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <libgen.h>
 #include "grammar.tab.h"
 
 void count();
@@ -17,15 +18,63 @@ int check_type();
 void lexical_error();
 void count_error();
 char* concat();
+extern char* current_file[5];
+extern int current_file_i;
+
+
+char* header_file;
+char* tmp_file;
+char* dir;
 %}
 %option yylineno
-
+%x incl
 %%
 
 
 "/*"((("*"[^/])?)|[^*])*"*/" { count(); /* ignore multi line comments */}
 "//".*                  { count();  /* ignore comments */      }
-^"#".*                  { count();  /* ignore comments */      }
+
+
+
+^#include               { BEGIN(incl);                         }
+<incl>[ \t]*[<\"]       {}
+<incl>[a-zA-Z_\.0-9]+[\">]      {
+                        tmp_file = malloc(strlen(current_file[current_file_i]));
+                        strcpy(tmp_file,current_file[current_file_i]);
+                        dirname(tmp_file);
+                        header_file = malloc(
+                                            strlen(tmp_file)+
+                                            1+
+                                            strlen(yytext)+
+                                            1
+                                            );
+                        header_file[0] = '\0';
+                        //printf("header %s \n",header_file);
+                        //printf("yytext %s \n",yytext);
+                        strcat(header_file, tmp_file);
+                        //printf("header %s \n",header_file);
+                        strcat(header_file, "/");
+                        //printf("header d %s \n",tmp_file);
+                        strcat(header_file, yytext);
+                        header_file[strlen(header_file)-1] = 0;
+                        printf("opening file %s \n",header_file);
+
+                        yyin = fopen(header_file, "r");
+
+                        if(!yyin)
+                          {
+                          printf("ERROR opening file");
+                          yyterminate();
+                          }
+                        current_file_i++;
+                        current_file[current_file_i]=header_file;
+                        printf("Reading file : %s",header_file);
+                        yypush_buffer_state(yy_create_buffer( yyin, YY_BUF_SIZE));
+                        BEGIN(INITIAL);
+                        }
+
+
+^"#"define.*                    { count();    }
 "auto"                  { count();    return(AUTO);            }
 "break"                 { count();    return(BREAK);           }
 "case"                  { count();    return(CASE);            }
@@ -117,14 +166,16 @@ L?\"(\\.|[^\\"])*\"     { count();    return(STRING_LITERAL);  }
 .                       { count();                             }
 %%
 
-int yywrap()
+int yywrap(void)
 {
-  return(1);
+  yypop_buffer_state();
+  if ( !YY_CURRENT_BUFFER )
+    return 1;
+  current_file_i--;
+  return 0;
 }
 
-
 extern void yyerror(const char *s);
-extern int recovering();
 
 int column = 0;
 int l_error_flag=0;
@@ -218,6 +269,7 @@ void llerror()
 
 void count()
 {
+  //ECHO;
   int i;
 
   for (i = 0; yytext[i] != '\0'; i++)

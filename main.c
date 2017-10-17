@@ -10,6 +10,9 @@ extern int yyparse();
 extern void clear_line_string();
 extern int yydebug;
 
+char* current_file[5];
+int current_file_i = 0;
+
 
 int main(int argc, char * * argv)
 {
@@ -17,6 +20,7 @@ int main(int argc, char * * argv)
   /* clear_line mallocs the current string buffer */
   clear_line_string();
   //yydebug = 1;
+  current_file[0] = argv[1];
   yyparse();
   return 1;
 }

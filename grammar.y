@@ -500,6 +500,9 @@ extern void fill_line();
 extern void clear_line_string();
 extern char* concat(char *s1,char *s2);
 
+extern char* current_file[5];
+extern int current_file_i;
+
 int recovering()
   {
   //YYABORT;
@@ -532,18 +535,20 @@ void yyerror(const char *s)
     underline=temp;
     }
   printf(
-                    "\n%s"            RESET
-        BOLDRED     "\n%*s"           RESET
-        BOLDRED     "%s"              RESET
+        BOLDMAGENTA "\n%s:"           RESET
         BOLDBLACK   "\nl:%d c:%d"     RESET
                     "::= %s at "      RESET
         BOLDMAGENTA "%s\n"            RESET
-        , line_string
-        , (column-yyleng+1), "^"
-        , underline
+                    "\n%s"            RESET
+        BOLDRED     "\n%*s"           RESET
+        BOLDRED     "%s\n"            RESET
+        , current_file[current_file_i]
         , (yylineno-1), column
         , s
         , yytext
+        , line_string
+        , (column-yyleng+1), "^"
+        , underline
         );
   free(underline);
   free(line_string);
