@@ -473,6 +473,7 @@ function_definition
 %%
 #include <stdio.h>
 #include <string.h>
+#include "main.h"
 #define RESET       "\033[0m"
 #define KNRM        "\x1B[0m"
 #define KRED        "\x1B[31m"
@@ -500,7 +501,7 @@ extern void fill_line();
 extern void clear_line_string();
 extern char* concat(char *s1,char *s2);
 
-extern char* current_file[5];
+extern char* current_file[MAX_INCL];
 extern int current_file_i;
 
 int recovering()

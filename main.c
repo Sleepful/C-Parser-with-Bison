@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<errno.h>
 #include "main.h"
 
 extern int yylex();
@@ -16,6 +17,7 @@ int current_file_i = 0;
 
 int main(int argc, char * * argv)
 {
+  errno = 0;
   verificarArgumentos(argc,argv);
   /* clear_line mallocs the current string buffer */
   clear_line_string();

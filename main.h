@@ -1,5 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
+#define MAX_INCL 20
 
 
 void print_help();

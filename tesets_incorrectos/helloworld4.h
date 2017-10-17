@@ -1,5 +1,4 @@
 #define MEM_SIZE 256
-#include "helloworld4.h"
 
   typedef struct instructionRegister
   {

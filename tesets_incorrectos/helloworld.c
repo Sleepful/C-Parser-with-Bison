@@ -1,6 +1,7 @@
 /* Hello World program */
 
 #include "helloworld2.h"
+#include "helloworld3.h"
 
 int main()
 {

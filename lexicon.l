@@ -11,14 +11,32 @@ IS     (u|U|l|L)*
 #include <stdio.h>
 #include <libgen.h>
 #include "grammar.tab.h"
+#include "main.h"
 
+#define RESET       "\033[0m"
+#define KNRM        "\x1B[0m"
+#define KRED        "\x1B[31m"
+#define KGRN        "\x1B[32m"
+#define KYEL        "\x1B[33m"
+#define KBLU        "\x1B[34m"
+#define KMAG        "\x1B[35m"
+#define KCYN        "\x1B[36m"
+#define KWHT        "\x1B[37m"
+#define BOLDBLACK   "\033[1m\033[30m"
+#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
+#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
+#define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
+#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
+#define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
+#define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
+#define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 void count();
 void comment();
 int check_type();
 void lexical_error();
 void count_error();
 char* concat();
-extern char* current_file[5];
+extern char* current_file[MAX_INCL];
 extern int current_file_i;
 
 
@@ -38,7 +56,13 @@ char* dir;
 
 ^#include               { BEGIN(incl);                         }
 <incl>[ \t]*[<\"]       {}
-<incl>[a-zA-Z_\.0-9]+[\">]      {
+      /* normal includes */
+<incl>[a-zA-Z_\.0-9]+\" {
+                        if ( current_file_i+1 >= MAX_INCL )
+                          {
+                          printf("\n Includes nested too deeply.\n");
+                          exit( 1 );
+                          }
                         tmp_file = malloc(strlen(current_file[current_file_i]));
                         strcpy(tmp_file,current_file[current_file_i]);
                         dirname(tmp_file);
@@ -57,20 +81,26 @@ char* dir;
                         //printf("header d %s \n",tmp_file);
                         strcat(header_file, yytext);
                         header_file[strlen(header_file)-1] = 0;
-                        printf("opening file %s \n",header_file);
+                        //printf(BOLDGREEN"\nOpening file :"RESET"%s \n",header_file);
 
                         yyin = fopen(header_file, "r");
 
                         if(!yyin)
                           {
-                          printf("ERROR opening file");
+                          printf("\nERROR opening file\n");
                           yyterminate();
                           }
-                        current_file_i++;
-                        current_file[current_file_i]=header_file;
-                        printf("Reading file : %s",header_file);
-                        yypush_buffer_state(yy_create_buffer( yyin, YY_BUF_SIZE));
+                        else
+                          {
+                          current_file_i++;
+                          current_file[current_file_i]=header_file;
+                          //printf(BOLDGREEN "\nReading file :" RESET " %s\n",header_file);
+                          yypush_buffer_state(yy_create_buffer( yyin, YY_BUF_SIZE));
+                          }
                         BEGIN(INITIAL);
+                        }
+      /* system includes */
+<incl>[a-zA-Z_\.0-9]+>  {
                         }
 
 
@@ -172,6 +202,7 @@ int yywrap(void)
   if ( !YY_CURRENT_BUFFER )
     return 1;
   current_file_i--;
+  //printf(BOLDRED "\nExiting file : %s\n" RESET,header_file);
   return 0;
 }
 
