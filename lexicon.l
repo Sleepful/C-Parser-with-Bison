@@ -112,8 +112,8 @@ L?\"(\\.|[^\\"])*\"     { count();    return(STRING_LITERAL);  }
 "^"                     { count();    return('^');             }
 "|"                     { count();    return('|');             }
 "?"                     { count();    return('?');             }
-[\t\v\n\f ]             { count();                             }
-.                       { count_error();                       }
+[\t\n\f ]               { count();                             }
+.                       { count();                             }
 %%
 
 int yywrap()
@@ -123,16 +123,16 @@ int yywrap()
 
 
 extern void yyerror(const char *s);
-
+extern int recovering();
 
 int column = 0;
 int l_error_flag=0;
 
 void count_error()
   {
+  count();
   if(l_error_flag)
     yyerror("Lexical error");
-  count();
   l_error_flag =1;
   return;
   }

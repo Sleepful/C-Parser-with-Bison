@@ -4,13 +4,8 @@
 
 int main()
 {
-    int "d";
-    printf("Hello World");
-    printf("Hello World");
-    printf("Hello World");
-    if()
+    int "d"; printf("Hello World"); printf("Hello World"); printf("Hello World"); if() 
       {
-      
       }
     printf("Hello World");
     printf("Hello World");

@@ -449,6 +449,13 @@ extern void fill_line();
 extern void clear_line_string();
 extern char* concat(char *s1,char *s2);
 
+int recovering()
+  {
+  //YYABORT;
+  return 0;
+  }
+
+
 void yyerror(const char *s)
 {
   /* error_tpye/error_message? */
@@ -480,7 +487,7 @@ void yyerror(const char *s)
         BOLDRED     "%s"              RESET
         BOLDBLACK   "\nl:%d c:%d"     RESET
                     "::= %s at "      RESET
-        BOLDRED     "%s\n"            RESET
+        BOLDMAGENTA "%s\n"            RESET
         , line_string
         , (column-yyleng+1), "^"
         , underline
